@@ -5,6 +5,7 @@
  */
 package test.playsafe.api.exception;
 
+import test.playsafe.api.abs.IErrorHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,12 +17,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author walles
  */
 @ControllerAdvice
-public class CommonErrorHAndler {
+public class CommonErrorHAndler implements IErrorHandler {
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String handler(Exception ex) {
+    @Override
+    public String handler(Exception ex) {
         return ex.getLocalizedMessage();
     }
 }

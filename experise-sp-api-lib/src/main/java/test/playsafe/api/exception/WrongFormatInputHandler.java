@@ -5,6 +5,7 @@
  */
 package test.playsafe.api.exception;
 
+import test.playsafe.api.abs.IErrorHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,12 +17,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author walles
  */
 @ControllerAdvice
-public class WrongFormatInputHandler {
+public class WrongFormatInputHandler implements IErrorHandler {
 
     @ResponseBody
     @ExceptionHandler(NumberFormatException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    String handler(Exception ex) {
+    @Override
+    public String handler(Exception ex) {
         return ex.getLocalizedMessage();
     }
 }
