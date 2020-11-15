@@ -74,14 +74,14 @@ public class RouletteConsole {
                 IGame newBet = new PlayedGame(previousBet.getChoosenBet(), previousBet.getAmountInBet(), g.getBalance(), g);
                 g.getGamesPlayed().add(newBet);
                 callables.add(new RouletteCallable(newBet));
-                try {
-                    List<Future<IGame>> invokeAll = executor.invokeAll(callables);
-                    printBettingResultsToConsole(invokeAll);
-                    callables.clear();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-                }
             });
+            try {
+                List<Future<IGame>> invokeAll = executor.invokeAll(callables);
+                printBettingResultsToConsole(invokeAll);
+                callables.clear();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+            }
             if (numberOfGames == 3) {
                 scheduledExecutor.shutdownNow();
                 schedulerDown = true;
