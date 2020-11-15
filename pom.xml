@@ -17,6 +17,7 @@
         <module>expertise-test-service-ctok-impl</module>
         <module>expertise-test-service-ktoc-impl</module>
         <module>experise-sp-api-lib</module>
+        <module>test-playsafe-console-roulette-app</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
