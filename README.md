@@ -29,5 +29,9 @@ Part 2 – Console Roulette
 See the attached pdf file.
 
 NOTE: 
-The services are added into Four different standalone modules representing the different conversation state.
+
+1. The services are added into Four different standalone modules representing the different conversational state.
 mvnw spring-boot:run command runs each standalone service from its own immediate folder entry.
+
+2. The console application is add as one of the modules in the parent module. Please navigate to the target directory after build 
+and run java -jar test-playsafe-console-roulette-app-1.0.0-SNAPSHOT.jar
