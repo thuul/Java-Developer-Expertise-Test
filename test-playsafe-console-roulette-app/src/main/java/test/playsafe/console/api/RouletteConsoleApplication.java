@@ -28,8 +28,8 @@ public class RouletteConsoleApplication {
 
         RouletteConsoleApplication app = new RouletteConsoleApplication();
 
-        ExecutorService e = app.getExecutor();
-        e.execute(() -> {
+        ExecutorService executor = app.getExecutor();
+        executor.execute(() -> {
 
             Console c = System.console();
             List<IGamingData> gameEntries = new ArrayList<>();
@@ -45,28 +45,34 @@ public class RouletteConsoleApplication {
                 System.out.println("A sample entry = P3 ODD 100.00");
                 System.out.println("To start the round, Press S: ");
                 String readLine = c.readLine();
+                RouletteConsole con = new RouletteConsole(gameEntries, executor);
                 if (readLine.equals("S")) {
                     keepAlive = false;
-                    RouletteConsole con = new RouletteConsole(gameEntries, e);
                     con.rollWheel();
+                    gameEntries.clear();
+                    System.out.println("Name Of Players and betting information:\n");
+                    selector.getSelections().entrySet().stream().forEach(p -> {
+                        BigDecimal[] earn = p.getValue().calculateEarninigs();
+                        System.out.println(String.format("%s %s, %s, %s\n", p.getKey(), p.getValue().getNameOfPlayer(), earn[0].doubleValue(), earn[1].doubleValue()));                        
+                    });
                 } else {
                     String[] splits = readLine.split(" ");
-                    IGamingData select = selector.select(splits[0]);
-                    select.setAmountInBet(BigDecimal.valueOf(Double.valueOf(splits[2])));
+                    String key = splits[0].trim();
+                    String betPaced = splits[1].trim();
+                    String betAmnt = splits[2].trim();
+                    IGamingData select = selector.select(key);
+                    select.setAmountInBet(BigDecimal.valueOf(Double.valueOf(betAmnt)));
                     select.setBalance(select.getAmountInBet());
                     select.setNumOfRounds(1);
-                    select.getGamesPlayed().add(new PlayedGame(splits[1], select.getAmountInBet(), select.getBalance(), true));
+                    select.getGamesPlayed().add(new PlayedGame(betPaced, select.getAmountInBet(), select.getBalance(), select));
                     gameEntries.add(select);
                 }
             }
         });
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             keepAlive = false;
-            e.shutdownNow();
+            executor.shutdownNow();
         }));
-    }
-
-    private void play(ExecutorService e, IGamingData selected) {
     }
 
     /**

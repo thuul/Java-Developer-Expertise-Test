@@ -10,8 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -19,6 +22,7 @@ import java.util.logging.Logger;
 import test.playsafe.console.api.abs.IGame;
 import test.playsafe.console.api.abs.IGamingData;
 import test.playsafe.console.api.player.BetStatus;
+import test.playsafe.console.api.player.PlayedGame;
 
 /**
  *
@@ -26,8 +30,11 @@ import test.playsafe.console.api.player.BetStatus;
  */
 public class RouletteConsole {
 
+    private ScheduledExecutorService scheduledExecutor;
     private final List<IGamingData> gameEntries;
-    private final ExecutorService e;
+    private final ExecutorService executor;
+    private int numberOfGames;
+    private boolean schedulerDown;
 
     /**
      * constructor.
@@ -37,7 +44,7 @@ public class RouletteConsole {
      */
     public RouletteConsole(List<IGamingData> gameEntries, ExecutorService e) {
         this.gameEntries = gameEntries;
-        this.e = e;
+        this.executor = e;
     }
 
     /**
@@ -54,15 +61,67 @@ public class RouletteConsole {
             callables.add(new RouletteCallable(g.getGamesPlayed().get(0)));
         });
         try {
-            e.invokeAll(callables);
+            List<Future<IGame>> invokeAll = executor.invokeAll(callables);
+            printBettingResultsToConsole(invokeAll);
+            callables.clear();
         } catch (InterruptedException ex) {
             Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }
-        ScheduledExecutorService se
-                = Executors.newSingleThreadScheduledExecutor(Executors.defaultThreadFactory());
-        se.scheduleAtFixedRate(() -> {
+        scheduledExecutor = Executors.newSingleThreadScheduledExecutor(Executors.defaultThreadFactory());
+        scheduledExecutor.scheduleAtFixedRate(() -> {
+            gameEntries.forEach(g -> {
+                IGame previousBet = g.getGamesPlayed().get(g.getGamesPlayed().size() - 1);
+                IGame newBet = new PlayedGame(previousBet.getChoosenBet(), previousBet.getAmountInBet(), g.getBalance(), g);
+                g.getGamesPlayed().add(newBet);
+                callables.add(new RouletteCallable(newBet));
+                try {
+                    List<Future<IGame>> invokeAll = executor.invokeAll(callables);
+                    printBettingResultsToConsole(invokeAll);
+                    callables.clear();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+                }
+            });
+            if (numberOfGames == 3) {
+                scheduledExecutor.shutdownNow();
+                schedulerDown = true;
+            }
+        }, 30, 30, TimeUnit.SECONDS);
+        CountDownLatch latch = new CountDownLatch(1);
+        while (latch.getCount() != 0) {
+            try {
+                latch.await(30, TimeUnit.SECONDS);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            }
+            if (numberOfGames == 3 && schedulerDown) {
+                latch.countDown();
+            }
+        }
+    }
 
-        }, 0, 30, TimeUnit.SECONDS);
+    private void printBettingResultsToConsole(List<Future<IGame>> invokes) {
+        ++numberOfGames;
+        System.out.println(String.format("Number: %s", numberOfGames));
+        System.out.println(String.format("Player\t\tBet\tOutcome\t\tWinnings\n\n"));
+        invokes.forEach(i -> {
+            try {
+                IGame result = i.get();
+                System.out.println(String.format("%s\t\t%s\t%s\t%s",
+                        result.getGamingData().getNameOfPlayer(), result.getChoosenBet(), result.getStatus().getStatus(), result.getAmount()));
+            } catch (InterruptedException | ExecutionException ex) {
+                Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+            }
+        });
+        System.out.println(String.format("\n\n"));
+    }
+
+    /**
+     *
+     * @return {@link ScheduledExecutorService}
+     */
+    public ScheduledExecutorService getScheduledExecutor() {
+        return scheduledExecutor;
     }
 
 }
@@ -87,9 +146,7 @@ class RouletteCallable implements Callable<IGame> {
 
     @Override
     public IGame call() throws Exception {
-        if (!game.isFirst()) {
 
-        }
         game.setBalance(BigDecimal.valueOf(game.getBalance().doubleValue() - game.getAmountInBet().doubleValue()));
         Random r = new Random();
         int next = r.nextInt(37);

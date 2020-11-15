@@ -68,4 +68,10 @@ public interface IGamingData {
      */
     void setNumOfRounds(int numOfRounds);
 
+    /**
+     *
+     * @return {@link BigDecimal[]}
+     */
+    BigDecimal[] calculateEarninigs();
+
 }

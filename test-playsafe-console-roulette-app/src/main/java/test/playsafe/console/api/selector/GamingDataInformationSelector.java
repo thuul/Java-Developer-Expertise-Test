@@ -6,7 +6,7 @@
 package test.playsafe.console.api.selector;
 
 import java.io.IOException;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
@@ -22,7 +22,7 @@ public class GamingDataInformationSelector extends AbstractKeyValueBasedSelector
 
     @Override
     public Map<String, IGamingData> getSelectorMap() {
-        return new IdentityHashMap<>();
+        return new HashMap<>();
     }
 
     @PostConstruct

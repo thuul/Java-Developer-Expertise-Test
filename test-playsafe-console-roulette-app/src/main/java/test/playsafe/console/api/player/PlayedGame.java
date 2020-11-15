@@ -7,6 +7,7 @@ package test.playsafe.console.api.player;
 
 import test.playsafe.console.api.abs.IGame;
 import java.math.BigDecimal;
+import test.playsafe.console.api.abs.IGamingData;
 
 /**
  *
@@ -19,7 +20,7 @@ public class PlayedGame implements IGame {
     private final BigDecimal amountInBet;
     private BigDecimal amount;
     private BigDecimal balance;
-    private boolean first;
+    private IGamingData gamingData;
 
     /**
      * constructor.
@@ -40,13 +41,13 @@ public class PlayedGame implements IGame {
      * @param choosenBet
      * @param amountInBet
      * @param balance
-     * @param first
+     * @param gamingData
      */
-    public PlayedGame(String choosenBet, BigDecimal amountInBet, BigDecimal balance, boolean first) {
+    public PlayedGame(String choosenBet, BigDecimal amountInBet, BigDecimal balance, IGamingData gamingData) {
         this.choosenBet = choosenBet;
         this.amountInBet = amountInBet;
         this.balance = balance;
-        this.first = first;
+        this.gamingData = gamingData;
     }
 
     /**
@@ -128,19 +129,19 @@ public class PlayedGame implements IGame {
 
     /**
      *
-     * @return
+     * @return {@link IGamingData}
      */
     @Override
-    public boolean isFirst() {
-        return first;
+    public IGamingData getGamingData() {
+        return gamingData;
     }
 
     /**
      *
-     * @param first
+     * @param gamingData
      */
     @Override
-    public void setFirst(boolean first) {
-        this.first = first;
+    public void setGamingData(IGamingData gamingData) {
+        this.gamingData = gamingData;
     }
 }

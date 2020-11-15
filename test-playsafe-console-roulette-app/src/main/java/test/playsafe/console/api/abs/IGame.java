@@ -66,14 +66,14 @@ public interface IGame {
 
     /**
      *
-     * @return boolean
+     * @return {@link IGamingData}
      */
-    boolean isFirst();
+    IGamingData getGamingData();
 
     /**
      *
-     * @param first
+     * @param gamingData
      */
-    void setFirst(boolean first);
+    void setGamingData(IGamingData gamingData);
 
 }

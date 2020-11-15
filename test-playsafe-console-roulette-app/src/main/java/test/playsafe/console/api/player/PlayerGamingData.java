@@ -113,4 +113,19 @@ public class PlayerGamingData implements IGamingData {
         return gamesPlayed;
     }
 
+    /**
+     *
+     * @return {@link BigDecimal[]}
+     */
+    @Override
+    public BigDecimal[] calculateEarninigs() {
+        double wins = 0;
+        double bets = 0;
+        for (IGame gm : gamesPlayed) {
+            wins += gm.getAmount().doubleValue();
+            bets += gm.getAmountInBet().doubleValue();
+        }
+        return new BigDecimal[]{BigDecimal.valueOf(wins), BigDecimal.valueOf(bets)};
+    }
+
 }
