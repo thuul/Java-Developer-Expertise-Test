@@ -27,3 +27,7 @@ The ktom endpoint should produce, when given an input amount in kilometers, an o
 Part 2 – Console Roulette
 
 See the attached pdf file.
+
+NOTE: 
+The services are added into Four different standalone modules representing the different conversation state.
+mvnw spring-boot:run command runs each standalone service from its own immediate folder entry.
