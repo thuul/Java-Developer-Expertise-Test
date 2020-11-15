@@ -30,6 +30,8 @@ import test.playsafe.console.api.player.PlayedGame;
  */
 public class RouletteConsole {
 
+    private static final int GAMES_PER_ROUND = 5;
+
     private ScheduledExecutorService scheduledExecutor;
     private final List<IGamingData> gameEntries;
     private final ExecutorService executor;
@@ -82,7 +84,7 @@ public class RouletteConsole {
             } catch (InterruptedException ex) {
                 Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
             }
-            if (numberOfGames == 3) {
+            if (numberOfGames == GAMES_PER_ROUND) {
                 scheduledExecutor.shutdownNow();
                 schedulerDown = true;
             }
@@ -94,12 +96,16 @@ public class RouletteConsole {
             } catch (InterruptedException ex) {
                 Logger.getLogger(RouletteConsole.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
-            if (numberOfGames == 3 && schedulerDown) {
+            if (numberOfGames == GAMES_PER_ROUND && schedulerDown) {
                 latch.countDown();
             }
         }
     }
 
+    /**
+     *
+     * @param invokes
+     */
     private void printBettingResultsToConsole(List<Future<IGame>> invokes) {
         ++numberOfGames;
         System.out.println(String.format("Number: %s", numberOfGames));
