@@ -1,6 +1,6 @@
 # Java-Developer-Expertise-Test
 
-Java Developer Expertise Test (60 min)
+Actually code resides in the MASTER branch.
 
 Part 1
 
